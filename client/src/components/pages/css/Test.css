@@ -1,0 +1,83 @@
+.test-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 55px 155px;
+  text-align: center;
+}
+
+.test-header {
+  font-size: 3vw;
+  font-weight: 900;
+  color: orange;
+}
+
+.test-subHeader {
+  margin: 25px;
+  font-size: 1.7vw;
+  color: grey;
+  font-weight: 900;
+}
+
+table {
+  margin: 25px 0 55px 0;
+}
+
+table thead tr td {
+  min-width: 855px;
+  font-size: 25.5px;
+  padding: 10px;
+  font-weight: 900;
+  background-color: #0eac3e;
+  color: white;
+  cursor: pointer;
+}
+
+table tbody tr td {
+  font-size: 19.5px;
+  padding: 20px 85px;
+  border: 1px solid rgba(0, 0, 0, 0.307);
+  cursor: pointer;
+  transition-duration: 0.7s;
+}
+
+table tbody tr td:hover {
+  transition-duration: 0.1s;
+  color: orange;
+}
+
+.right-answer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media only screen and (max-width: 1000px) {
+  .test-submit {
+    font-size: 18.5px !important;
+  }
+
+  .test-container {
+    margin: 35px 5px;
+  }
+
+  .test-subHeader {
+    margin: 25px;
+    font-size: 15px;
+  }
+
+  table {
+    margin: 5px;
+  }
+
+  table thead tr td {
+    min-width: 500px;
+    font-size: 20.5px;
+  }
+
+  table tbody tr td {
+    padding: 20px 35px;
+    font-size: 15.5px;
+  }
+}

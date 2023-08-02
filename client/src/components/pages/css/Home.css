@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand";
+  text-decoration: none !important;
+}
+
+.home-container {
+  display: flex;
+  justify-content: center;
+}
+
+.home-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffcb08;
+  width: 75%;
+  font-weight: bolder;
+  font-size: 26px;
+  box-shadow: 0px 0px 11px 1px rgba(0, 0, 0, 0.455);
+  padding-bottom: 25px;
+  padding-top: 5px;
+  margin: 5px;
+}
+
+.home-wrap-img {
+  background-color: white;
+  border-radius: 100%;
+  margin-bottom: 15px;
+  border: 3.5px solid #5c2e12;
+}
+
+.home-wrap img {
+  width: 215px;
+  margin-top: 55px;
+  margin-bottom: 35px;
+}
+
+.home-wrap-font {
+  margin-bottom: 15px;
+  width: 45%;
+  text-align: center;
+}
+
+.home-wrap-button-contain {
+  margin: 35px;
+  width: 225px;
+  height: 55px;
+  text-align: center;
+}
+
+.home-wrap-button {
+  padding: 10px 5px;
+  background-color: #58bd2f;
+  color: white;
+  border-radius: 25px;
+  font-size: 21px;
+  border-bottom: 8px solid #459724;
+  cursor: pointer;
+  transition-duration: 0.5s;
+}
+
+.home-wrap-button:hover {
+  transform: translateY(-10px);
+  border-bottom: 15px solid #459724;
+  transition-duration: 0.2s;
+}
+
+.home-wrap-button:active {
+  transition-duration: 0.1s;
+  transform: translateY(1px);
+  border-bottom: 8px solid #459724;
+}
+
+.arrow-button {
+  position: absolute;
+  bottom: 5px;
+  left: 34%;
+  width: 75px;
+  height: 75px;
+  opacity: 65%;
+}
+
+
+
+@media only screen and (max-width: 1300px) {
+  .home-wrap {
+    font-size: 22.5px;
+  }
+
+  .arrow-button {
+    display: none;
+  }
+}

@@ -1,0 +1,16 @@
+.to-top {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  width: 65px;
+  height: 65px;
+  opacity: 65%;
+  transition-duration: 0.7s;
+  cursor: pointer;
+  z-index: 5555555;
+}
+
+.to-top:hover {
+  transition-duration: 0.1s;
+  opacity: 100%;
+}

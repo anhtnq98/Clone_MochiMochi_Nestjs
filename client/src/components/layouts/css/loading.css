@@ -1,0 +1,47 @@
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.122);
+  z-index: 1;
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 35%;
+  height: 35%;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  border-top-color: #1a73e8;
+  animation: spin 1s infinite linear;
+  background-image: url("/img/logo/mochimochi-mochidemy.gif");
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: 2;
+  /* animation: spin 0.6 infinite linear; */
+}
+
+/* @keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+} */
+
+.loading-spinner {
+  width: 165px;
+  height: 165px;
+  border-radius: 50%;
+  border: 15px solid #ffcb08;
+  /* border-top-color: transparent; */
+  background-color: #ffffff;
+}
