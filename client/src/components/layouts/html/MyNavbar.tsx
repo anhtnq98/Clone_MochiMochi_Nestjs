@@ -1,5 +1,5 @@
 import "../css/MyNavbar.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase";
@@ -152,7 +152,7 @@ function MyNavbar() {
       // Tải lên ảnh lên Firebase Storage
       const storageRef = ref(
         storage,
-        `admin/users/${dateTime}_${currentUser.userName}`
+        `admin/users/${currentUser.userName}/${dateTime}_${currentUser.userName}`
       );
 
       const uploadTask = uploadBytesResumable(storageRef, imgUpload);
@@ -168,7 +168,6 @@ function MyNavbar() {
       // Lấy URL của ảnh đã tải lên
       const imgUrl = await getDownloadURL(storageRef);
       setNewAvatar(imgUrl);
-
       setIsUploading(false);
       setUploadProgress(0);
     } catch (error) {
@@ -184,48 +183,52 @@ function MyNavbar() {
   // Sau khi lưu giá trị ảnh xong thì chuyển hướng lưu vào trong database
   useEffect(() => {
     if (newAvatar) {
-      axios
-        .put(
-          `http://localhost:5500/api/v1/users/update-avatar/${currentUser.userId}`,
-          { newAvatar }
-        )
-        .then(() => {
-          toast.success("Thay đổi ảnh avatar thành công!", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
-          setTimeout(() => {
-            window.location.reload();
-          }, 2500);
-        })
-        .catch((error) => {
-          console.log(error);
+      try {
+        axios.patch(
+          `http://localhost:5550/api/v1/users/${currentUser.userId}`,
+          {
+            photoURL: newAvatar,
+          }
+        );
+
+        toast.success("Thay đổi ảnh avatar thành công! 🌞", {
+          position: toast.POSITION.TOP_RIGHT,
         });
+        setShowChangeAvatar(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2500);
+      } catch (error) {
+        console.log(error);
+      }
     }
   }, [newAvatar]);
 
   const handleChangeName = async () => {
     if (newName?.length < 3 || newName?.length > 10) {
-      toast.error("Tên người dùng phải nằm trong khoảng 3 ~ 10 kí tự !", {
+      toast.error("Tên người dùng phải nằm trong khoảng 3 ~ 11 kí tự !", {
         position: toast.POSITION.TOP_RIGHT,
       });
       return;
     }
-    await axios
-      .put(
-        `http://localhost:5500/api/v1/users/update-username/${currentUser.userId}`,
-        { newName }
-      )
-      .then(() => {
-        toast.success("Thay tên người dùng thành công", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        setTimeout(() => {
-          window.location.reload();
-        }, 2500);
-      })
-      .catch((error) => {
-        console.log(error);
+
+    try {
+      await axios.patch(
+        `http://localhost:5550/api/v1/users/${currentUser.userId}`,
+        {
+          userName: newName,
+        }
+      );
+
+      toast.success("Thay tên người dùng thành công! 🌞", {
+        position: toast.POSITION.TOP_RIGHT,
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2500);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -321,7 +324,6 @@ function MyNavbar() {
           </>
         ) : (
           <>
-            {" "}
             <div className="nav-right">
               <div className="username animate__animated animate__bounce animate__slow animate__delay-1s animate__repeat-2">
                 Khách!
@@ -409,7 +411,10 @@ function MyNavbar() {
                           {currentUser.userName}
                         </div>
                         <img
-                          onClick={() => setDivToInput(true)}
+                          onClick={() => {
+                            setDivToInput(true),
+                              setNewName(currentUser.userName);
+                          }}
                           width={"32px"}
                           src="/img/logo/edit-profile.svg"
                           alt=""
@@ -423,6 +428,7 @@ function MyNavbar() {
                             onChange={(e) => setNewName(e.target.value)}
                             minLength={3}
                             maxLength={10}
+                            value={newName}
                           />
                           <Button variant="warning" onClick={handleChangeName}>
                             Thay đổi tên
@@ -548,7 +554,10 @@ function MyNavbar() {
           </Modal.Footer>
         </Modal>
         {/* MODAL ĐỔI AVATAR END*/}
-        <ToastContainer autoClose={1500} />
+        <ToastContainer
+          autoClose={1500}
+          style={{ fontWeight: "normal", textAlign: "center" }}
+        />
       </div>
     </>
   );

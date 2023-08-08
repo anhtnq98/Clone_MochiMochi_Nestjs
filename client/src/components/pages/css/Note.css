@@ -41,7 +41,7 @@
 
 .notes-container {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   padding: 25px;
   flex-wrap: wrap;
   gap: 15px;

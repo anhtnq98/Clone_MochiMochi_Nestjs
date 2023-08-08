@@ -61,8 +61,8 @@ function NewWord() {
   const [listCourse, setListCourse] = useState<Courses[]>([]);
 
   const loadListCourse = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/courses`);
-    setListCourse(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/courses`);
+    setListCourse(result.data);
   };
 
   useEffect(() => {
@@ -72,10 +72,10 @@ function NewWord() {
   const [course, setCourse] = useState<Courses>();
 
   const loadCourse = async () => {
-    let result = await axios.get(
-      `http://localhost:5500/api/v1/courses/${courseId}`
-    );
-    setCourse(result.data.data[0][0]);
+    await axios
+      .get(`http://localhost:5550/api/v1/courses/${courseId}`)
+      .then((res) => setCourse(res.data))
+      .catch((error) => console.log(`Không thể lấy dữ liệu bởi lỗi ${error}`));
   };
 
   useEffect(() => {
@@ -87,9 +87,9 @@ function NewWord() {
 
   const loadLessons = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/lessons/${courseId}`
+      `http://localhost:5550/api/v1/lessons/${courseId}`
     );
-    setListLesson(result.data.data[0]);
+    setListLesson(result.data);
   };
 
   useEffect(() => {
@@ -101,10 +101,10 @@ function NewWord() {
 
   const loadNewWords = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/new_words/${lessonId}`
+      `http://localhost:5550/api/v1/new_words/${lessonId}`
     );
-    setListNewWords(result.data.data[0]);
-    setNewWordId(result.data.data[0][0]?.newWordId);
+    setListNewWords(result.data);
+    setNewWordId(result.data[0]?.newWordId);
   };
 
   useEffect(() => {
@@ -116,16 +116,15 @@ function NewWord() {
 
   const loadComplete = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/lessons_complete/${currentUser.userId}`
+      `http://localhost:5550/api/v1/lessons_complete/${currentUser.userId}`
     );
-    setComplete(result.data.data);
+    setComplete(result.data);
   };
 
   useEffect(() => {
     loadComplete();
   }, [currentUser]);
 
-  console.log(complete);
 
   const handleToLesson = (courseId: number) => {
     clickAudio.play();
@@ -138,6 +137,8 @@ function NewWord() {
     clickAudio.play();
     setLessonId(lessonId);
     setShowConfirm(true);
+    console.log("lessonId ===>", lessonId);
+    console.log("newWordId ===>", newWordId);
   };
 
   const handleToNewWord = () => {
@@ -199,10 +200,12 @@ function NewWord() {
       ) : (
         <>
           <div
-            style={{ padding: "15px" }}
+            style={{ padding: "115px", display: "flex", alignItems: "center" }}
             className="new-word-wrap animate__animated animate__backInUp animate__slow "
           >
-            Trang này hiện tại không có
+            <div style={{ margin: "55px 0px 55px 0px" }}>
+              Hiện tại không có khóa học nào cả 😖
+            </div>
           </div>
         </>
       )}

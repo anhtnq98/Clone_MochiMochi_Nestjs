@@ -72,7 +72,7 @@
 
 .nav-right-avatar {
   background-color: aliceblue;
-  max-width: 60px;
+  width: 60px;
   height: 60px;
   overflow: hidden;
   border: 4px rgb(255, 166, 0) solid;

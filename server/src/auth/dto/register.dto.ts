@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 export class RegisterDto {
-  @Length(3, 10)
+  @Length(3, 11)
   @IsString()
   userName: string;
 

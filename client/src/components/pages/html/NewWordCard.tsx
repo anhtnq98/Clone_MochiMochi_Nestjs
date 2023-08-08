@@ -5,7 +5,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../unity/store";
-import { Slide, Zoom, Flip, Bounce } from "react-toastify";
+import { Zoom } from "react-toastify";
 
 interface NewWord {
   newWordId: number;
@@ -30,9 +30,9 @@ function NewWordCard() {
 
   const loadNewWords = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/new_words/${lessonId}`
+      `http://localhost:5550/api/v1/new_words/${lessonId}`
     );
-    setListNewWords(result.data.data[0]);
+    setListNewWords(result.data);
   };
 
   useEffect(() => {
@@ -44,9 +44,9 @@ function NewWordCard() {
 
   const loadNewWord = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/new_words/lesson/${newWordId}`
+      `http://localhost:5550/api/v1/new_words/new_word/${newWordId}`
     );
-    setNewWord(result.data.data[0][0]);
+    setNewWord(result.data);
   };
 
   useEffect(() => {
@@ -72,11 +72,9 @@ function NewWordCard() {
 
   const loadComplete = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/lessons_complete/${currentUser.userId}`
+      `http://localhost:5550/api/v1/lessons_complete/${currentUser.userId}`
     );
-    setCheckComplete(
-      result.data.data.filter((e: any) => e.lessonId === lessonId)
-    );
+    setCheckComplete(result.data.filter((e: any) => e.lessonId === lessonId));
   };
 
   useEffect(() => {
@@ -97,7 +95,7 @@ function NewWordCard() {
     if (currentWord >= listNewWords.length) {
       if (checkComplete.length === 0) {
         await axios
-          .post(`http://localhost:5500/api/v1/lessons_complete`, newComplete)
+          .post(`http://localhost:5550/api/v1/lessons_complete`, newComplete)
           .then((res) => res.data)
           .catch((err) => console.log(err));
       }
@@ -105,7 +103,7 @@ function NewWordCard() {
       endLessonAudio.play();
       await axios
         .put(
-          `http://localhost:5500/api/v1/users/update-experience/${currentUser.userId}`,
+          `http://localhost:5550/api/v1/users/update-experience/${currentUser.userId}`,
           { newExperience }
         )
         .then((res) => res.data)
@@ -120,7 +118,7 @@ function NewWordCard() {
       if (currentUser.experience === 10) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "🌸 Nhận Biết Mặt Chữ" }
           )
           .then((res) => res.data)
@@ -132,7 +130,7 @@ function NewWordCard() {
       } else if (currentUser.experience === 50) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "🌻 Hiểu Chút Xíu" }
           )
           .then((res) => res.data)
@@ -144,7 +142,7 @@ function NewWordCard() {
       } else if (currentUser.experience === 100) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "💐 Mầm Non Bản Địa" }
           )
           .then((res) => res.data)
@@ -156,7 +154,7 @@ function NewWordCard() {
       } else if (currentUser.experience === 500) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "🍁 Đọc Hiểu Thông Thường" }
           )
           .then((res) => res.data)
@@ -168,7 +166,7 @@ function NewWordCard() {
       } else if (currentUser.experience === 1000) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "🏫 Trung Học Bản Địa" }
           )
           .then((res) => res.data)
@@ -180,7 +178,7 @@ function NewWordCard() {
       } else if (currentUser.experience === 2500) {
         await axios
           .put(
-            `http://localhost:5500/api/v1/users/update-trophy/${currentUser.userId}`,
+            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
             { newTrophy: "️🎖️ Tiếng Anh Thông Thạo" }
           )
           .then((res) => res.data)

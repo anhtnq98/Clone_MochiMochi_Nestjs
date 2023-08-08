@@ -42,17 +42,31 @@ function Register() {
       e.preventDefault();
       e.stopPropagation();
     } else {
-      await axios
-        .post(`http://localhost:5500/api/v1/register-login/register`, newUser)
-        .catch((error) => console.log(error));
-
-      toast.success("Đăng ký thành công!", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 2500);
+      try {
+        await axios
+          .post(`http://localhost:5550/api/v1/auth/register`, newUser)
+          .then((res) => {
+            toast.success(`${res.data.message}`, {
+              position: toast.POSITION.TOP_RIGHT,
+            });
+            localStorage.setItem("loginFlag", JSON.stringify(res.data.user));
+            setTimeout(() => {
+              window.location.href = "/home";
+            }, 2500);
+            console.log(res);
+            console.log("0000");
+          })
+          .catch((error) => {
+            toast.warning(`${error.response.data.message}`, {
+              position: toast.POSITION.TOP_RIGHT,
+            }),
+              console.log("111");
+            console.log(error);
+          });
+      } catch (error) {
+        console.log("222");
+        console.log(error);
+      }
     }
     setValidated(true);
   };
@@ -92,14 +106,14 @@ function Register() {
                 aria-describedby="inputGroupPrepend"
                 required
                 minLength={3}
-                maxLength={10}
+                maxLength={11}
                 value={newUser.userName}
                 onChange={(e) =>
                   setNewUser({ ...newUser, userName: e.target.value })
                 }
               />
               <Form.Control.Feedback type="invalid">
-                * Tên hiển thị cần có từ 3-10 ký tự
+                * Tên hiển thị cần có từ 3-11 ký tự
               </Form.Control.Feedback>
             </InputGroup>
           </Form.Group>

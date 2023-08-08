@@ -10,7 +10,7 @@ export class User {
   @Column()
   userName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -29,5 +29,5 @@ export class User {
   photoURL: string;
 
   @OneToMany(() => Note, (note) => note.userId)
-  note: Note[];
+  notes: Note[];
 }

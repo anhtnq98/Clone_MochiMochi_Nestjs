@@ -19,24 +19,22 @@ import ListUser from "./components/admin/html/ListUser";
 import CoursesManagement from "./components/admin/html/CoursesManagement";
 import TestManagement from "./components/admin/html/TestManagement";
 import TestDetail from "./components/pages/html/TestDetail";
+import ServerError from "./components/layouts/html/ServerError";
 
 function App() {
   const dispatch = useDispatch();
   const loadData = async () => {
     const loginFlag = localStorage.getItem("loginFlag");
     const email = loginFlag ? JSON.parse(loginFlag).email : null;
+    console.log(email);
 
     try {
       const response = await axios.get(
-        `http://localhost:5500/api/v1/users/email`,
-        {
-          params: {
-            email: email,
-          },
-        }
+        `http://localhost:5550/api/v1/users/email?email=${email}`
       );
+      console.log(response);
 
-      dispatch(changeUser(response.data.data[0]));
+      dispatch(changeUser(response.data));
     } catch (error) {
       console.log(error);
     }
@@ -46,9 +44,13 @@ function App() {
     return state.user.value;
   });
 
+  console.log(!currentUser, "<==== currentUser");
+
   useEffect(() => {
     loadData();
   }, []);
+
+  console.log("currentUser ===>", currentUser.role);
 
   return (
     <>
@@ -64,8 +66,9 @@ function App() {
               <Route path="/list-users" element={<ListUser />} />
               <Route path="*" element={<AdminPage />} />
             </Routes>
+            <ScrollToTop />
           </>
-        ) : (
+        ) : currentUser?.role === 1 ? (
           <>
             <MyNavbar />
             <Routes>
@@ -79,9 +82,15 @@ function App() {
               <Route path="*" element={<Home />} />
             </Routes>
             <Footer />
+            <ScrollToTop />
+          </>
+        ) : (
+          <>
+            <Routes>
+              <Route path="*" element={<ServerError />} />
+            </Routes>
           </>
         )}
-        <ScrollToTop />
       </Router>
     </>
   );

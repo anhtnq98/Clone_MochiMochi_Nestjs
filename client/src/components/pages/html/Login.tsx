@@ -6,9 +6,9 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import "../css/Register.css";
 import { Link } from "react-router-dom";
-import publicAxios from "../../../fetchConfig/publicAxios";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
+import publicAxios from "../../../fetchConfig/publicAxios";
 
 const Login = () => {
   type UserType = {
@@ -61,62 +61,58 @@ const Login = () => {
   };
 
   useEffect(() => {
-    console.log("check Effect");
-
     if (user.email) {
       publicAxios
-        .post("/api/v1/register-login/google-login", user)
+        .post("http://localhost:5550/api/v1/auth/google-login", user)
         //trả về token
-        .then((res) => {
-          localStorage.setItem("accessToken", res.data.token),
-            localStorage.setItem("loginFlag", JSON.stringify(res.data.data));
-          setTimeout(() => {
-            window.location.href = "/new-word/1";
-          }, 2000);
-          /* lưu token trả về vào local
-        điều hướng đến trang học tập*/
+        .then(() => {
+          // localStorage.setItem("accessToken", res.data.token),
         })
-        .catch((err) => console.log(err));
-      toast.success("Đăng nhập thành công!", {
+        .catch((error) => {
+          console.log(error);
+        });
+
+      localStorage.setItem("loginFlag", JSON.stringify(user));
+
+      toast.success("Đăng nhập bằng Google thành công! 🍀", {
         position: toast.POSITION.BOTTOM_LEFT,
       });
+      setTimeout(() => {
+        window.location.href = "/new-word/1";
+      }, 2000);
     }
   }, [user]);
 
   const [validated, setValidated] = useState(false);
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (e: any) => {
     clickAudio.play();
-    event.preventDefault();
-    const form = event.currentTarget;
+    e.preventDefault();
+    const form = e.currentTarget;
 
-    if (form.checkValidity() === true) {
+    if (form.checkValidity() === false) {
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
       await axios
-        .post("http://localhost:5500/api/v1/register-login/login", loginUser) //trả về token
+        .post("http://localhost:5550/api/v1/auth/login", loginUser)
         .then((res) => {
-          localStorage.setItem("accessToken", res.data.token),
-            localStorage.setItem("loginFlag", JSON.stringify(res.data.data));
+          // localStorage.setItem("accessToken", res.data.token),
+          localStorage.setItem("loginFlag", JSON.stringify(res.data.user));
+          toast.success(`${res.data.message}`, {
+            position: toast.POSITION.TOP_RIGHT,
+          });
           setTimeout(() => {
             window.location.href = "/new-word/1";
           }, 2000);
-          toast.success("Đăng nhập thành công!", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
-          setValidated(true);
-          /* lưu token trả về vào local
-    điều hướng đến trang học tập*/
         })
-        .catch((err) => {
-          console.log(err);
-
-          toast.error("Email hoặc mật khẩu bị sai rồi!", {
+        .catch((error) => {
+          toast.error(`${error.response.data.message}`, {
             position: toast.POSITION.TOP_RIGHT,
           });
         });
-    } else {
-      event.preventDefault();
-      event.stopPropagation();
     }
+    setValidated(true);
   };
 
   return (
@@ -169,7 +165,8 @@ const Login = () => {
                   }
                 />
                 <Form.Control.Feedback type="invalid">
-                  * Email sai định dạng, bạn kiểm tra lại nhé
+                  * Email đang để trống hoặc sai định dạng, bạn kiểm tra lại
+                  nhé!
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>

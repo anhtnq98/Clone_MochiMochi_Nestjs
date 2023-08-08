@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../css/Note.css";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -39,16 +39,26 @@ function Note() {
   const [listNotes, setListNotes] = useState<Notes[]>([]);
 
   const loadListNotes = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/notes`);
-
-    setListNotes(result.data.data[0]);
-    setNewNote({
-      ...newNote,
-      noteId: result.data.data[0][result.data.data[0]?.length - 1].noteId + 1,
-      userId: currentUser.userId,
-      content: "",
-      complete: 0,
-    });
+    let result = await axios.get(`http://localhost:5550/api/v1/notes`);
+    console.log(result.data);
+    setListNotes(result.data);
+    if (result.data.length > 0) {
+      setNewNote({
+        ...newNote,
+        noteId: result.data[result.data?.length - 1].noteId + 1,
+        userId: currentUser.userId,
+        content: "",
+        complete: 0,
+      });
+    } else {
+      setNewNote({
+        ...newNote,
+        noteId: 1,
+        userId: currentUser.userId,
+        content: "",
+        complete: 0,
+      });
+    }
   };
 
   let listNotesByUserId = listNotes.filter(
@@ -70,51 +80,52 @@ function Note() {
       });
       return;
     }
-    try {
-      await axios.post(`http://localhost:5500/api/v1/notes`, newNote);
-      toast.success("Thêm ghi chú thành công!", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-    } catch (error) {
-      console.log(error);
-    }
 
-    loadListNotes();
+    await axios
+      .post(`http://localhost:5550/api/v1/notes`, newNote)
+      .then(() => {
+        toast.success("Thêm ghi chú thành công!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        loadListNotes();
+      })
+      .catch((error) => console.log(`Không thể thêm ghi chú bởi lỗi ${error}`));
   };
 
   // Delete Note
   const handleDeleteNote = async () => {
-    await axios.put(`http://localhost:5500/api/v1/notes/delete/${noteId}`);
-    toast.success("Xóa ghi chú thành công!", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
+    await axios
+      .delete(`http://localhost:5550/api/v1/notes/${+noteId}`)
+      .then(() => {
+        toast.success("Xóa ghi chú thành công!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      })
+      .catch((error) => console.log(`Không thể xóa ghi chú bởi lỗi ${error}`));
+
     loadListNotes();
     setShowConfirm(false);
   };
 
   // Complete Note
   const handleCompleteNote = async (note: any) => {
-    console.log("nc ===>", note?.complete);
+    console.log("nc ===>", note?.complete, note);
     if (note?.complete === 1) {
-      await axios.put(`http://localhost:5500/api/v1/notes/${note?.noteId}`, {
-        complete: 0,
+      await axios.patch(`http://localhost:5550/api/v1/notes/${note?.noteId}`, {
+        complete: 2,
       });
     } else {
-      await axios.put(`http://localhost:5500/api/v1/notes/${note?.noteId}`, {
+      await axios.patch(`http://localhost:5550/api/v1/notes/${note?.noteId}`, {
         complete: 1,
       });
     }
-
     loadListNotes();
   };
 
   const handleEditNote = async (note: any) => {
-    await axios.put(
-      `http://localhost:5500/api/v1/notes/update/${note?.noteId}`,
-      {
-        content: content,
-      }
-    );
+    await axios.patch(`http://localhost:5550/api/v1/notes/${note?.noteId}`, {
+      content: content,
+    });
     toast.success("Cập nhật ghi chú thành công!", {
       position: toast.POSITION.TOP_RIGHT,
     });
@@ -174,7 +185,7 @@ function Note() {
               <div
                 className={
                   note?.complete === 1
-                    ? "complete-check  animate__animated animate__bounceInDown"
+                    ? "complete-check  animate__animated animate__fast animate__bounceInDown"
                     : "complete-check-none"
                 }
               >
@@ -227,7 +238,7 @@ function Note() {
           ))}
         </div>
       )}
-      <ToastContainer autoClose={1000} />
+      <ToastContainer autoClose={850} />
       {/* CONFIRM MODAL */}
       <Modal
         style={{ paddingTop: "115px" }}

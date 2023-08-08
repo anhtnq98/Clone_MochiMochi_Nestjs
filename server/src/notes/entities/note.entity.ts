@@ -1,3 +1,4 @@
+import { CreateNoteDto } from './../dto/create-note.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 
@@ -15,8 +16,11 @@ export class Note {
   @Column()
   complete: number;
 
-  @ManyToOne((type) => User, (user) => user.note)
+  @ManyToOne(() => User, (user) => user.notes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
   user: User;
 
+  constructor(CreateNoteDto: Object = {}) {
+    Object.assign(this, CreateNoteDto);
+  }
 }
