@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/pages/html/Home";
 import MyNavbar from "./components/layouts/html/MyNavbar";
@@ -22,12 +22,11 @@ import TestDetail from "./components/pages/html/TestDetail";
 import ServerError from "./components/layouts/html/ServerError";
 
 function App() {
+  const loginFlag = localStorage.getItem("loginFlag");
+  const email = loginFlag ? JSON.parse(loginFlag).email : null;
+  const [serverError, setServerError] = useState<boolean>(false);
   const dispatch = useDispatch();
   const loadData = async () => {
-    const loginFlag = localStorage.getItem("loginFlag");
-    const email = loginFlag ? JSON.parse(loginFlag).email : null;
-    console.log(email);
-
     try {
       const response = await axios.get(
         `http://localhost:5550/api/v1/users/email?email=${email}`
@@ -36,7 +35,7 @@ function App() {
 
       dispatch(changeUser(response.data));
     } catch (error) {
-      console.log(error);
+      setServerError(true);
     }
   };
 
@@ -44,51 +43,54 @@ function App() {
     return state.user.value;
   });
 
-  console.log(!currentUser, "<==== currentUser");
-
   useEffect(() => {
     loadData();
   }, []);
 
-  console.log("currentUser ===>", currentUser.role);
-
   return (
     <>
       <Router>
-        {currentUser?.role === 0 ? (
-          <>
-            <Routes>
-              <Route path="tests-management" element={<TestManagement />} />
-              <Route
-                path="/courses-management"
-                element={<CoursesManagement />}
-              />
-              <Route path="/list-users" element={<ListUser />} />
-              <Route path="*" element={<AdminPage />} />
-            </Routes>
-            <ScrollToTop />
-          </>
-        ) : currentUser?.role === 1 ? (
-          <>
-            <MyNavbar />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              <Route path="/new-word/:id/:id/:id" element={<NewWordCard />} />
-              <Route path="/new-word/:id" element={<NewWord />} />
-              <Route path="/note" element={<Note />} />
-              <Route path="/test/:id/:id" element={<TestDetail />} />
-              <Route path="/test/:id" element={<Test />} />
-              <Route path="*" element={<Home />} />
-            </Routes>
-            <Footer />
-            <ScrollToTop />
-          </>
-        ) : (
+        {serverError === true ? (
           <>
             <Routes>
               <Route path="*" element={<ServerError />} />
             </Routes>
+          </>
+        ) : (
+          <>
+            {currentUser?.role === 0 ? (
+              <>
+                <Routes>
+                  <Route path="tests-management" element={<TestManagement />} />
+                  <Route
+                    path="/courses-management"
+                    element={<CoursesManagement />}
+                  />
+                  <Route path="/list-users" element={<ListUser />} />
+                  <Route path="*" element={<AdminPage />} />
+                </Routes>
+                <ScrollToTop />
+              </>
+            ) : (
+              <>
+                <MyNavbar />
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="register" element={<Register />} />
+                  <Route
+                    path="/new-word/:id/:id/:id"
+                    element={<NewWordCard />}
+                  />
+                  <Route path="/new-word/:id" element={<NewWord />} />
+                  <Route path="/note" element={<Note />} />
+                  <Route path="/test/:id/:id/:id" element={<TestDetail />} />
+                  <Route path="/test/:id" element={<Test />} />
+                  <Route path="*" element={<Home />} />
+                </Routes>
+                <Footer />
+                <ScrollToTop />
+              </>
+            )}
           </>
         )}
       </Router>

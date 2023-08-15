@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LessonsCompleteService } from './lessons_complete.service';
 import { CreateLessonsCompleteDto } from './dto/create-lessons_complete.dto';
 import { UpdateLessonsCompleteDto } from './dto/update-lessons_complete.dto';
 
-@Controller('lessons-complete')
+@Controller('/api/v1/lessons_complete')
 export class LessonsCompleteController {
-  constructor(private readonly lessonsCompleteService: LessonsCompleteService) {}
+  constructor(
+    private readonly lessonsCompleteService: LessonsCompleteService,
+  ) {}
 
   @Post()
   create(@Body() createLessonsCompleteDto: CreateLessonsCompleteDto) {
@@ -13,22 +23,14 @@ export class LessonsCompleteController {
   }
 
   @Get()
-  findAll() {
-    return this.lessonsCompleteService.findAll();
+  findAllComplete() {
+    return this.lessonsCompleteService.findAllComplete();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lessonsCompleteService.findOne(+id);
+  @Get(':userId')
+  findAll(@Param('userId') userId: string) {
+    return this.lessonsCompleteService.findAll(userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLessonsCompleteDto: UpdateLessonsCompleteDto) {
-    return this.lessonsCompleteService.update(+id, updateLessonsCompleteDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lessonsCompleteService.remove(+id);
-  }
+  
 }

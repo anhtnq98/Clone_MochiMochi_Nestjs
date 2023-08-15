@@ -53,6 +53,18 @@
   display: flex;
   justify-content: space-evenly;
   padding: 5px 25px;
+  gap: 15px;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 55px;
+}
+
+.test-block-answers-four {
+  display: flex;
+  justify-content: center;
+  gap: 25px 95px;
+  padding: 5px 25px;
+  flex-wrap: wrap;
   text-align: center;
   margin-top: 5px;
   margin-bottom: 55px;
@@ -72,8 +84,8 @@
   border-left: 1px solid rgba(128, 128, 128, 0.185);
   border-right: 1px solid rgba(128, 128, 128, 0.185);
   border-bottom: 5px solid rgba(128, 128, 128, 0.34);
-  width: 25%;
-  padding: 10px 5px;
+  width: 35%;
+  padding: 10px 15px;
   cursor: pointer;
 }
 
@@ -285,12 +297,14 @@
     margin-top: 125px;
   }
 
-  .test-block-answers {
+  .test-block-answers,
+  .test-block-answers-four {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     padding: 5px 25px;
+    gap: 0px;
   }
 
   .test-answer,

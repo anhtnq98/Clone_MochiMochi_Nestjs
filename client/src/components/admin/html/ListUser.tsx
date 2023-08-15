@@ -4,6 +4,8 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import "../css/AdminPage.css";
 import AdminNavbar from "./AdminNavbar";
 import axios from "axios";
+import Loading from "../../layouts/html/Loading";
+import debounce from "lodash.debounce";
 
 interface User {
   userId: string;
@@ -16,32 +18,50 @@ interface User {
 }
 
 const ListUser = () => {
+  const [loading, setLoading] = useState(false);
+
+  // search
+  const [searchUserValue, setSearchUserValue] = useState<string>("");
+  const searchValue = searchUserValue.trim();
+
   const [users, setUsers] = useState<User[]>([]);
 
-  const loadUsers = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/users`);
-    let listUser = result.data.data.filter((e: any) => e.role !== 0);
-    setUsers(listUser);
+  const loadUsers = () => {
+    setLoading(true);
+    setTimeout(() => {
+      axios
+        .get(
+          `http://localhost:5550/api/v1/users/search?searchValue=${searchValue}`
+        )
+        .then((res) => {
+          let listUser = res.data.filter((e: any) => e.role !== 0);
+          setUsers(listUser);
+        })
+        .catch((err) => console.log(err));
+      setLoading(false);
+    }, 750);
   };
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    const delayedSearch = debounce(loadUsers, 1000); // Đặt thời gian debounce là 500ms
+    delayedSearch();
+    return delayedSearch.cancel; // Hủy debounce khi component bị hủy
+  }, [searchValue]);
 
   // lấy trạng thái hoàn thành bài học
   const [complete, setComplete] = useState<any>([]);
   const loadComplete = async () => {
-    let result = await axios.get(
-      `http://localhost:5500/api/v1/lessons_complete`
-    );
-    setComplete(result.data.data);
+    await axios
+      .get(`http://localhost:5550/api/v1/lessons_complete`)
+      .then((res) => {
+        setComplete(res.data);
+      })
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
     loadComplete();
   }, []);
-
-  console.log(complete.filter((e: any) => e?.userId === 1)[0]);
 
   const renderUserList = () => {
     const itemsPerPage = 10;
@@ -59,7 +79,7 @@ const ListUser = () => {
 
     return (
       <>
-        <div className="users-container  animate__animated animate__slow animate__fadeInDown">
+        <div className="users-container  animate__animated animate__slower animate__fadeInDown">
           {displayedUsers.map((user, index) => (
             <div key={index} className="user-block">
               <div className="user-avatar">
@@ -92,6 +112,7 @@ const ListUser = () => {
             </div>
           ))}
         </div>
+        {loading ? <Loading /> : <></>}
         <div className="pagination">
           {Array.from({ length: totalPages }, (_, index) => (
             <Button
@@ -119,7 +140,12 @@ const ListUser = () => {
               <div className="management-search-only">
                 {/* SEARCH */}
                 <div className="management-search">
-                  <input type="text" placeholder="Tìm kiếm tên người dùng..." />
+                  <input
+                    onChange={(e: any) => setSearchUserValue(e.target.value)}
+                    value={searchUserValue}
+                    type="text"
+                    placeholder="Tìm kiếm tên người dùng..."
+                  />
                   <img src="/img/logo/search.svg" alt="" />
                 </div>
                 {/* SEARCH END*/}

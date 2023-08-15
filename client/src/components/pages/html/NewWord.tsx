@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../../unity/store";
 import axios from "axios";
+import { ToastContainer, Zoom, toast } from "react-toastify";
 
 interface Courses {
   courseId: number;
@@ -115,16 +116,19 @@ function NewWord() {
   const [complete, setComplete] = useState<any>([]);
 
   const loadComplete = async () => {
-    let result = await axios.get(
-      `http://localhost:5550/api/v1/lessons_complete/${currentUser.userId}`
-    );
-    setComplete(result.data);
+    await axios
+      .get(
+        `http://localhost:5550/api/v1/lessons_complete/${currentUser.userId}`
+      )
+      .then((res) => {
+        setComplete(res.data);
+      })
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
     loadComplete();
   }, [currentUser]);
-
 
   const handleToLesson = (courseId: number) => {
     clickAudio.play();
@@ -137,14 +141,15 @@ function NewWord() {
     clickAudio.play();
     setLessonId(lessonId);
     setShowConfirm(true);
-    console.log("lessonId ===>", lessonId);
-    console.log("newWordId ===>", newWordId);
   };
 
   const handleToNewWord = () => {
     if (listNewWords.length === 0) {
       clickAudio.play();
       setShowConfirm(false);
+      toast.warning("Bài học này hiện tại đang trống 😖 !", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
       return;
     }
     clickAudio.play();
@@ -358,6 +363,11 @@ function NewWord() {
           </div>
         </Modal.Body>
       </Modal>
+      <ToastContainer
+        autoClose={1500}
+        transition={Zoom}
+        style={{ textAlign: "center" }}
+      />
       {/* CONFIRM MODAL END*/}
     </div>
   );

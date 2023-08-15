@@ -25,6 +25,8 @@ function NewWordCard() {
   let lessonId = Number(window.location.href.split("/")[5]);
   let newWordId = Number(window.location.href.split("/")[6]);
 
+  const [disableButton, setDisableButton] = useState<boolean>(false);
+
   // lấy từ mới tương ứng mỗi bài học
   const [listNewWords, setListNewWords] = useState<any>([]);
 
@@ -88,7 +90,11 @@ function NewWordCard() {
 
   let newExperience = currentUser.experience + 1;
 
+  console.log(newComplete);
+
   console.log(currentUser.experience);
+
+  console.log("checkComplete ===>", checkComplete.length);
 
   // Thêm kinh nghiệm và chuyển trang
   const handleChangePage = async () => {
@@ -96,16 +102,17 @@ function NewWordCard() {
       if (checkComplete.length === 0) {
         await axios
           .post(`http://localhost:5550/api/v1/lessons_complete`, newComplete)
-          .then((res) => res.data)
+          .then((res) => {
+            console.log(res);
+          })
           .catch((err) => console.log(err));
       }
       clickAudio.play();
       endLessonAudio.play();
       await axios
-        .put(
-          `http://localhost:5550/api/v1/users/update-experience/${currentUser.userId}`,
-          { newExperience }
-        )
+        .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+          experience: newExperience,
+        })
         .then((res) => res.data)
         .catch((err) => console.log(err));
       toast.success("Hoàn thành bài học!", {
@@ -117,10 +124,9 @@ function NewWordCard() {
       });
       if (currentUser.experience === 10) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "🌸 Nhận Biết Mặt Chữ" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "🌸 Nhận Biết Mặt Chữ",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 🌸 Nhận Biết Mặt Chữ !", {
@@ -129,10 +135,9 @@ function NewWordCard() {
         streakDayAudio.play();
       } else if (currentUser.experience === 50) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "🌻 Hiểu Chút Xíu" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "🌻 Hiểu Chút Xíu",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 🌻 Hiểu Chút Xíu !", {
@@ -141,10 +146,9 @@ function NewWordCard() {
         streakDayAudio.play();
       } else if (currentUser.experience === 100) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "💐 Mầm Non Bản Địa" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "💐 Mầm Non Bản Địa",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 💐 Mầm Non Bản Địa !", {
@@ -153,10 +157,9 @@ function NewWordCard() {
         streakDayAudio.play();
       } else if (currentUser.experience === 500) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "🍁 Đọc Hiểu Thông Thường" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "🍁 Đọc Hiểu Thông Thường",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 🍁 Đọc Hiểu Thông Thường !", {
@@ -165,10 +168,9 @@ function NewWordCard() {
         streakDayAudio.play();
       } else if (currentUser.experience === 1000) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "🏫 Trung Học Bản Địa" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "🏫 Trung Học Bản Địa",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 🏫 Trung Học Bản Địa !", {
@@ -177,10 +179,9 @@ function NewWordCard() {
         streakDayAudio.play();
       } else if (currentUser.experience === 2500) {
         await axios
-          .put(
-            `http://localhost:5550/api/v1/users/update-trophy/${currentUser.userId}`,
-            { newTrophy: "️🎖️ Tiếng Anh Thông Thạo" }
-          )
+          .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+            trophy: "️🎖️ Tiếng Anh Thông Thạo",
+          })
           .then((res) => res.data)
           .catch((err) => console.log(err));
         toast("Nhận được danh hiệu: 🎖️ Tiếng Anh Thông Thạo !", {
@@ -188,6 +189,7 @@ function NewWordCard() {
         });
         streakDayAudio.play();
       }
+      setDisableButton(true);
       setTimeout(() => {
         navigate(`/new-word/${courseId}`);
       }, 3500);
@@ -227,7 +229,7 @@ function NewWordCard() {
         </div>
         <div className="home-wrap-button-contain">
           <div
-            onClick={handleChangePage}
+            onClick={disableButton === false ? handleChangePage : () => {}}
             style={{ fontWeight: "700" }}
             className="home-wrap-button"
           >

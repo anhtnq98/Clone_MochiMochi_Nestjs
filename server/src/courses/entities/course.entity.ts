@@ -1,4 +1,3 @@
-import { CreateCourseDto } from './../dto/create-course.dto';
 import { Lesson } from 'src/lessons/entities/lesson.entity';
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 

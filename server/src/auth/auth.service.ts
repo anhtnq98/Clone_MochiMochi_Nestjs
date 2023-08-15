@@ -12,11 +12,20 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
+import { Note } from 'src/notes/entities/note.entity';
+import { CreateNoteDto } from 'src/notes/dto/create-note.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private usersRepo: Repository<User>) {}
-  async register(registerDto: RegisterDto, res: Response) {
+  constructor(
+    @InjectRepository(User) private usersRepo: Repository<User>, // @InjectRepository(Note)
+  ) // private readonly notesRepo: Repository<Note>,
+  {}
+  async register(
+    registerDto: RegisterDto,
+    // notesDto: CreateNoteDto[],
+    res: Response,
+  ) {
     try {
       let checkUserName = await this.usersRepo.findOne({
         where: { userName: registerDto.userName },
@@ -53,6 +62,8 @@ export class AuthService {
       };
 
       let register = this.usersRepo.create(newUser);
+      // let notes = this.notesRepo.create(notesDto);
+      // register.notes = notes;
       await this.usersRepo.save(register);
       return res.status(201).json({
         message: 'Đăng ký thành công! 🍀',
@@ -129,7 +140,9 @@ export class AuthService {
       if (isMatch === true) {
         res.status(200).json({
           message: 'Đăng nhập thành công! 🍀',
-          user: loginDto,
+          user: {
+            email: loginDto.email,
+          },
         });
       } else {
         res.status(401).json({

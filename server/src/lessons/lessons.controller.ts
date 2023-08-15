@@ -22,9 +22,14 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto, res);
   }
 
+  @Get()
+  findAll() {
+    return this.lessonsService.findAll();
+  }
+
   @Get(':courseId')
-  findAll(@Param('courseId') courseId: string) {
-    return this.lessonsService.findAll(+courseId);
+  findAllByCourseId(@Param('courseId') courseId: string) {
+    return this.lessonsService.findAllByCourseId(+courseId);
   }
 
   @Get(':id')
@@ -32,13 +37,13 @@ export class LessonsController {
     return this.lessonsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonsService.update(+id, updateLessonDto);
+  @Patch(':lessonId')
+  update(@Param('lessonId') lessonId: string, @Body() updateLessonDto: UpdateLessonDto) {
+    return this.lessonsService.update(+lessonId, updateLessonDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lessonsService.remove(+id);
+  @Delete(':lessonId')
+  remove(@Param('lessonId') lessonId: string) {
+    return this.lessonsService.remove(+lessonId);
   }
 }

@@ -15,8 +15,8 @@ const AdminPage = () => {
   const [users, setUsers] = useState<any>([]);
 
   const loadUsers = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/users`);
-    let listUser = result.data.data.filter((e: any) => e.role !== 0);
+    let result = await axios.get(`http://localhost:5550/api/v1/users`);
+    let listUser = result.data.filter((e: any) => e.role !== 0);
     setUsers(listUser);
   };
 
@@ -26,8 +26,8 @@ const AdminPage = () => {
 
   const [listCourse, setListCourse] = useState<any>([]);
   const loadListCourse = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/courses`);
-    setListCourse(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/courses`);
+    setListCourse(result.data);
   };
 
   useEffect(() => {
@@ -36,10 +36,8 @@ const AdminPage = () => {
 
   const [listTests, setListTests] = useState<any>([]);
   const loadListTests = async () => {
-    let result = await axios.get(
-      `http://localhost:5500/api/v1/tests/my_test/all`
-    );
-    setListTests(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/tests`);
+    setListTests(result.data);
   };
 
   useEffect(() => {

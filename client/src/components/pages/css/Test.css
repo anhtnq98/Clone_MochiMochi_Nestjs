@@ -53,6 +53,18 @@ table tbody tr td:hover {
   align-items: center;
 }
 
+.back-to-list {
+  font-size: 25px;
+  font-weight: bolder;
+  cursor: pointer;
+  color: orange;
+  padding-top: 15px;
+}
+
+.back-to-list:hover {
+  color: gray;
+}
+
 @media only screen and (max-width: 1000px) {
   .test-submit {
     font-size: 18.5px !important;

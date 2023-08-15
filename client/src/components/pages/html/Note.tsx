@@ -40,8 +40,9 @@ function Note() {
 
   const loadListNotes = async () => {
     let result = await axios.get(`http://localhost:5550/api/v1/notes`);
-    console.log(result.data);
+
     setListNotes(result.data);
+
     if (result.data.length > 0) {
       setNewNote({
         ...newNote,
@@ -64,6 +65,9 @@ function Note() {
   let listNotesByUserId = listNotes.filter(
     (e: any) => e.userId === currentUser?.userId
   );
+
+  console.log("note ===>", listNotes);
+  console.log("listNotesByUserId ===>", listNotesByUserId);
 
   let completeNotes = listNotesByUserId.filter((e: any) => e.complete === 1);
 

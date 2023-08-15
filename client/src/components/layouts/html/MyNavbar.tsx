@@ -1,5 +1,5 @@
 import "../css/MyNavbar.css";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase";
@@ -62,6 +62,7 @@ function MyNavbar() {
   };
 
   const handleSetting = () => {
+    clickAudio.play();
     setShowSetting(true);
   };
 
@@ -183,24 +184,21 @@ function MyNavbar() {
   // Sau khi lưu giá trị ảnh xong thì chuyển hướng lưu vào trong database
   useEffect(() => {
     if (newAvatar) {
-      try {
-        axios.patch(
-          `http://localhost:5550/api/v1/users/${currentUser.userId}`,
-          {
-            photoURL: newAvatar,
-          }
+      axios
+        .patch(`http://localhost:5550/api/v1/users/${currentUser.userId}`, {
+          photoURL: newAvatar,
+        })
+        .then(() => {
+          setShowChangeAvatar(false);
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        })
+        .catch((err) =>
+          toast.error(`${err.response.data.message}`, {
+            position: toast.POSITION.TOP_RIGHT,
+          })
         );
-
-        toast.success("Thay đổi ảnh avatar thành công! 🌞", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        setShowChangeAvatar(false);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2500);
-      } catch (error) {
-        console.log(error);
-      }
     }
   }, [newAvatar]);
 
@@ -309,7 +307,7 @@ function MyNavbar() {
               <div className="username animate__animated animate__bounce animate__slow animate__delay-1s animate__repeat-2">
                 {currentUser.userName}!
               </div>
-              <div className="nav-right-avatar">
+              <div className="nav-right-avatar" onClick={handleSetting}>
                 <img src={currentUser.photoURL} alt="" />
               </div>
               <div>
@@ -373,7 +371,9 @@ function MyNavbar() {
             <div className="list-course-modal-title">
               <div>
                 <img
-                  onClick={() => setShowSetting(false)}
+                  onClick={() => {
+                    clickAudio.play(), setShowSetting(false);
+                  }}
                   src="/img/logo/close.svg"
                   alt=""
                 />

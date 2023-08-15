@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
+import { CreateNoteDto } from 'src/notes/dto/create-note.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -12,6 +13,15 @@ export class AuthController {
   register(@Body() registerDto: RegisterDto, @Res() res: Response) {
     return this.authService.register(registerDto, res);
   }
+
+  // @Post('/register')
+  // register(
+  //   @Body() userWithNotes: { registerDto: RegisterDto; notesDto: CreateNoteDto[] },
+  //   @Res() res: Response,
+  // ) {
+  //   const { registerDto, notesDto } = userWithNotes;
+  //   return this.authService.register(registerDto, notesDto, res);
+  // }
 
   @Post('/google-login')
   google_login(@Body() registerDto: RegisterDto, @Res() res: Response) {

@@ -21,6 +21,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('/search')
+  async searchUser(@Query('searchValue') searchValue: string) {
+    return await this.usersService.searchUser(searchValue);
+  }
+
   @Get('/email')
   findOne(@Query('email') email: string) {
     return this.usersService.findOne(email);
@@ -30,8 +35,9 @@ export class UsersController {
   async update(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Res() res: Response,
   ) {
-    return await this.usersService.update(userId, updateUserDto);
+    return await this.usersService.update(userId, updateUserDto, res);
   }
 
   @Delete(':userId')

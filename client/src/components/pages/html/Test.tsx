@@ -16,9 +16,9 @@ function Test() {
 
   const loadListTestTables = async () => {
     let result = await axios.get(
-      `http://localhost:5500/api/v1/tests/${testTableType}`
+      `http://localhost:5550/api/v1/test_tables/${testTableType}`
     );
-    setListTestTables(result.data.data[0]);
+    setListTestTables(result.data);
   };
 
   useEffect(() => {
@@ -28,20 +28,17 @@ function Test() {
   const [listTests, setListTests] = useState<any>([]);
 
   const loadListTests = async () => {
-    let result = await axios.get(
-      `http://localhost:5500/api/v1/tests/my_test/all`
-    );
-    setListTests(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/tests`);
+    setListTests(result.data);
   };
 
   useEffect(() => {
     loadListTests();
   }, []);
 
-  console.log("listTests ===>", listTests);
-
   const handleShowListTest = (testTable: any) => {
     clickAudio.play();
+    setShowListTest(true);
     let newListTests = listTests.filter(
       (e: any) => e.testTableId === testTable?.testTableId
     );
@@ -50,15 +47,16 @@ function Test() {
     );
     setListTestIndex(listTestIndex);
     setListTests(newListTests);
-    setShowListTest(true);
   };
 
-  console.log("listTestIndex ====>", listTestIndex);
+  console.log("listTests ===>", listTests);
 
   return (
     <div className="test-container">
       <div className="test-header">
-        Mochi Test - Kiểm tra từ vựng IELTS, TOEIC, THPTQG
+        {testTableType === "1"
+          ? "Mochi Test - Kiểm tra từ vựng IELTS, TOEIC, THPTQG"
+          : "Mochi Test - Kiểm tra đọc hiểu IELTS, TOEIC"}
       </div>
       <div className="test-subHeader">
         Lựa chọn bài test từ vựng phù hợp với nhu cầu của mình nhé!
@@ -101,7 +99,7 @@ function Test() {
                               <td
                                 onClick={() =>
                                   navigate(
-                                    `/test/${testTableType}/${e?.testId}`
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
                                   )
                                 }
                               >
@@ -122,7 +120,7 @@ function Test() {
                               <td
                                 onClick={() =>
                                   navigate(
-                                    `/test/${testTableType}/${e?.testId}`
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
                                   )
                                 }
                               >
@@ -143,7 +141,7 @@ function Test() {
                               <td
                                 onClick={() =>
                                   navigate(
-                                    `/test/${testTableType}/${e?.testId}`
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
                                   )
                                 }
                               >
@@ -164,7 +162,7 @@ function Test() {
                               <td
                                 onClick={() =>
                                   navigate(
-                                    `/test/${testTableType}/${e?.testId}`
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
                                   )
                                 }
                               >
@@ -187,7 +185,122 @@ function Test() {
                               <td
                                 onClick={() =>
                                   navigate(
-                                    `/test/${testTableType}/${e?.testId}`
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
+                                  )
+                                }
+                              >
+                                {e?.testName}
+                              </td>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      ))}
+                    </tr>
+                    <tr>
+                      {listTests?.slice(10, 12).map((e: any) => (
+                        <>
+                          {console.log(listTests, "<--- list test")}
+
+                          {e?.testTableId === testTable?.testTableId ? (
+                            <>
+                              <td
+                                onClick={() =>
+                                  navigate(
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
+                                  )
+                                }
+                              >
+                                {e?.testName}
+                              </td>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      ))}
+                    </tr>
+                    <tr>
+                      {listTests?.slice(12, 14).map((e: any) => (
+                        <>
+                          {console.log(listTests, "<--- list test")}
+
+                          {e?.testTableId === testTable?.testTableId ? (
+                            <>
+                              <td
+                                onClick={() =>
+                                  navigate(
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
+                                  )
+                                }
+                              >
+                                {e?.testName}
+                              </td>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      ))}
+                    </tr>
+                    <tr>
+                      {listTests?.slice(14, 16).map((e: any) => (
+                        <>
+                          {console.log(listTests, "<--- list test")}
+
+                          {e?.testTableId === testTable?.testTableId ? (
+                            <>
+                              <td
+                                onClick={() =>
+                                  navigate(
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
+                                  )
+                                }
+                              >
+                                {e?.testName}
+                              </td>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      ))}
+                    </tr>
+                    <tr>
+                      {listTests?.slice(16, 18).map((e: any) => (
+                        <>
+                          {console.log(listTests, "<--- list test")}
+
+                          {e?.testTableId === testTable?.testTableId ? (
+                            <>
+                              <td
+                                onClick={() =>
+                                  navigate(
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
+                                  )
+                                }
+                              >
+                                {e?.testName}
+                              </td>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      ))}
+                    </tr>
+                    <tr>
+                      {listTests?.slice(18, 20).map((e: any) => (
+                        <>
+                          {console.log(listTests, "<--- list test")}
+
+                          {e?.testTableId === testTable?.testTableId ? (
+                            <>
+                              <td
+                                onClick={() =>
+                                  navigate(
+                                    `/test/${testTableType}/${e?.testTableId}/${e?.testId}`
                                   )
                                 }
                               >
@@ -203,9 +316,48 @@ function Test() {
                   </tbody>
                 </table>
               ))}
+            <div
+              className="back-to-list"
+              onClick={() => {
+                clickAudio.play();
+                setShowListTest(false);
+                loadListTests();
+              }}
+            >
+              👉 QUAY TRỞ LẠI DANH SÁCH BÀI KIỂM TRA
+            </div>
           </>
         )}
       </div>
+      {showListTest === false ? (
+        <>
+          {testTableType === "1" ? (
+            <>
+              <div
+                onClick={() => {
+                  window.location.href = "/test/2";
+                }}
+                className="back-to-list"
+              >
+                👉 ĐẾN BÀI KIỂM TRA ĐỌC HIỂU
+              </div>
+            </>
+          ) : (
+            <>
+              <div
+                onClick={() => {
+                  window.location.href = "/test/1";
+                }}
+                className="back-to-list"
+              >
+                👉 ĐẾN BÀI KIỂM TRA TỪ VỰNG
+              </div>
+            </>
+          )}
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

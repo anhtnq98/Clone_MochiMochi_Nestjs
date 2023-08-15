@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Res,
+  Query,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -27,18 +28,23 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+  @Get('/search')
+  async searchCourse(@Query('searchCV') searchCV: string) {
+    return await this.coursesService.searchCourse(searchCV);
+  }
+
   @Get(':courseId')
-  findOne(@Param('courseId') courseId: string) {
-    return this.coursesService.findOne(+courseId);
+  async findOne(@Param('courseId') courseId: string) {
+    return await this.coursesService.findOne(+courseId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(+id, updateCourseDto);
+  @Patch(':courseId')
+  async update(@Param('courseId') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
+    return await this.coursesService.update(+courseId, updateCourseDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coursesService.remove(+id);
+  @Delete(':courseId')
+  async remove(@Param('courseId') courseId: string) {
+    return await this.coursesService.remove(+courseId);
   }
 }

@@ -60,11 +60,9 @@ function Register() {
             toast.warning(`${error.response.data.message}`, {
               position: toast.POSITION.TOP_RIGHT,
             }),
-              console.log("111");
-            console.log(error);
+              console.log(error);
           });
       } catch (error) {
-        console.log("222");
         console.log(error);
       }
     }

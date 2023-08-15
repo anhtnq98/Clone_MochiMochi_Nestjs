@@ -5,10 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Note } from './entities/note.entity';
 import { Repository } from 'typeorm';
 import { Response } from 'express';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class NotesService {
-  constructor(@InjectRepository(Note) private notesRepo: Repository<Note>) {}
+  constructor(
+    @InjectRepository(Note) private notesRepo: Repository<Note>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
   async create(createNoteDto: CreateNoteDto, res: Response) {
     try {
       let newNote = new Note(createNoteDto);

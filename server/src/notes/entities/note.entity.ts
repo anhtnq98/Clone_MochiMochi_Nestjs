@@ -8,9 +8,6 @@ export class Note {
   noteId: number;
 
   @Column()
-  userId: string;
-
-  @Column()
   content: string;
 
   @Column()
@@ -18,7 +15,8 @@ export class Note {
 
   @ManyToOne(() => User, (user) => user.notes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
-  user: User;
+  @Column()
+  userId: string;
 
   constructor(CreateNoteDto: Object = {}) {
     Object.assign(this, CreateNoteDto);

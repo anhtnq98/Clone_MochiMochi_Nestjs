@@ -57,7 +57,6 @@ const CoursesManagement = () => {
   const [showLesson, setShowLesson] = useState(false);
   const [showAddLesson, setShowAddLesson] = useState(false);
   const [showEditLesson, setShowEditLesson] = useState(false);
-  const [showDeleteLesson, setShowDeleteLesson] = useState(false);
   const [showNewWord, setShowNewWord] = useState(false);
   const [showAddNewWord, setShowAddNewWord] = useState(false);
   const [showEditNewWord, setShowEditNewWord] = useState(false);
@@ -69,6 +68,10 @@ const CoursesManagement = () => {
 
   const [deleteCourseId, setDeleteCourseId] = useState<number>(0);
   const [deleteCourseIndex, setDeleteCourseIndex] = useState<number>(0);
+  const [deleteLessonId, setDeleteLessonId] = useState<number>(0);
+  const [deleteLessonIndex, setDeleteLessonIndex] = useState<number>(0);
+  const [deleteNewWordId, setDeleteNewWordId] = useState<number>(0);
+  const [deleteNewWordIndex, setDeleteNewWordIndex] = useState<number>(0);
 
   // Lấy thời gian hiện tại
   const today = new Date();
@@ -159,18 +162,14 @@ const CoursesManagement = () => {
   // Load tất cả khóa học
   const loadListCourse = async () => {
     setLoading(true);
-
     setTimeout(() => {
       axios
-        .get(
-          `http://localhost:5500/api/v1/courses/search?searchCourseValue=${searchCV}`
-        )
+        .get(`http://localhost:5550/api/v1/courses/search?searchCV=${searchCV}`)
         .then((res) => {
-          setCourses(res.data.data[0]);
+          setCourses(res.data);
           setNewCourse({
             ...newCourse,
-            courseId:
-              res.data.data[0][res.data.data[0]?.length - 1].courseId + 1,
+            courseId: res.data[res.data?.length - 1].courseId + 1,
             courseName: "",
             courseLangue: 0,
             target: "",
@@ -190,8 +189,8 @@ const CoursesManagement = () => {
 
   // Load tất cả bài học
   const loadLessons = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/lessons`);
-    setListLesson(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/lessons`);
+    setListLesson(result.data);
   };
 
   useEffect(() => {
@@ -200,8 +199,8 @@ const CoursesManagement = () => {
 
   // Load tất cả từ mời
   const loadNewWords = async () => {
-    let result = await axios.get(`http://localhost:5500/api/v1/new_words`);
-    setListNewWord(result.data.data[0]);
+    let result = await axios.get(`http://localhost:5550/api/v1/new_words`);
+    setListNewWord(result.data);
   };
 
   useEffect(() => {
@@ -262,15 +261,23 @@ const CoursesManagement = () => {
       return;
     }
 
-    await axios.post(`http://localhost:5500/api/v1/courses`, newCourse);
-    setCourses([...courses, newCourse]);
+    await axios
+      .post(`http://localhost:5550/api/v1/courses`, newCourse)
+      .then((res) => {
+        setCourses([...courses, newCourse]);
 
-    setShowAddPostModal(false);
-    toast.success("Thêm khóa học thành công!", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
+        setShowAddPostModal(false);
+        toast.success(`${res.data.message}`, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
 
-    loadListCourse();
+        loadListCourse();
+      })
+      .catch((err) => {
+        toast.warning(`${err.response.data.message}`, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      });
   };
 
   // Hàm edit khóa học
@@ -278,29 +285,30 @@ const CoursesManagement = () => {
     const updatedCourses = courses.filter((course) =>
       course.courseId === editCourse.courseId ? editCourse : course
     );
-
-    await axios.put(
-      `http://localhost:5500/api/v1/courses/${editCourse.courseId}`,
-      editCourse
-    );
-
     setCourses(updatedCourses);
-    setShowEditPostModal(false);
-    setEditCourse({
-      courseId: 0,
-      courseName: "",
-      courseLangue: 0,
-      target: "",
-      about: "",
-    });
+    await axios
+      .patch(
+        `http://localhost:5550/api/v1/courses/${editCourse.courseId}`,
+        editCourse
+      )
+      .then(() => {
+        toast.success(`Thay đổi nội dung thành công! 🍀`, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        setShowEditPostModal(false);
+        loadListCourse();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   // Hàm xóa khóa học
   const handleDeleteCourses = async () => {
-    await axios.put(
-      `http://localhost:5500/api/v1/courses/delete/${deleteCourseId}`
+    await axios.delete(
+      `http://localhost:5550/api/v1/courses/${deleteCourseId}`
     );
-    toast.success("Xóa khóa học thành công!", {
+    toast.success("Xóa khóa học thành công! 🍀", {
       position: toast.POSITION.TOP_RIGHT,
     });
     courses.splice(deleteCourseIndex, 1);
@@ -383,10 +391,50 @@ const CoursesManagement = () => {
     }
   };
 
+  // Hàm xử lý khi edit ảnh bài học
+  const handleNewWordEditImageChange = async (e: any) => {
+    const file = e.target.files[0];
+    if (file && editNewWord.title && editNewWord.contentOne) {
+      setNewWordImgUpload(e.target.files[0]);
+      const reader: any = new FileReader();
+      reader.addEventListener("load", () => {
+        setNewWordImgPreview(reader.result);
+      });
+      reader.readAsDataURL(file);
+    } else {
+      toast.warning("Nhập tên từ mới trước nha", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
+    }
+  };
+
   // Hàm xử lý khi thay đổi âm thanh từ mới
   const handleNewWordVoiceChange = async (e: any) => {
     const file = e.target.files[0];
     if (file && newNewWord.title && newNewWord.contentOne) {
+      setNewWordVoiceUpload(e.target.files[0]);
+      const reader: any = new FileReader();
+      reader.addEventListener("load", () => {
+        setNewWordVoicePreview(reader.result);
+      });
+      reader.readAsDataURL(file);
+    } else {
+      toast.warning("Nhập từ mới trước nha", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
+    }
+  };
+
+  // Hàm xử lý khi thay đổi âm thanh từ mới
+  const handleNewWordEditVoiceChange = async (e: any) => {
+    const file = e.target.files[0];
+    if (file && editNewWord.title && editNewWord.contentOne) {
       setNewWordVoiceUpload(e.target.files[0]);
       const reader: any = new FileReader();
       reader.addEventListener("load", () => {
@@ -455,11 +503,9 @@ const CoursesManagement = () => {
   useEffect(() => {
     if (newLesson.lessonImg) {
       axios
-        .post("http://localhost:5500/api/v1/lessons", newLesson)
-        .then(() => {
-          loadLessons();
-
-          toast.success("Thêm bài học thành công", {
+        .post("http://localhost:5550/api/v1/lessons", newLesson)
+        .then((res) => {
+          toast.success(`${res.data.message}`, {
             position: toast.POSITION.TOP_RIGHT,
           });
           setLessonImgPreview(null);
@@ -476,10 +522,13 @@ const CoursesManagement = () => {
           });
           // load lại data
           setShowAddLesson(false);
+          loadLessons();
           listLessonsById.push(newLesson);
         })
         .catch((error) => {
-          console.log(error);
+          toast.warning(`${error.response.data.message}`, {
+            position: toast.POSITION.TOP_RIGHT,
+          });
         });
     }
   }, [newLesson]);
@@ -487,21 +536,20 @@ const CoursesManagement = () => {
   // Hàm edit bài học
   const handleEditLesson = async () => {
     if (!editLesson.lessonImg) {
-      toast.warning("Nhớ nhập đầy đủ thông tin nhé ^^", {
+      toast.warning("Nhớ nhập đầy đủ thông tin nhé ⚠️", {
         position: toast.POSITION.TOP_RIGHT,
       });
       return;
     }
     if (!lessonImgUpload) {
       await axios
-        .put(
-          `http://localhost:5500/api/v1/lessons/${editLesson.lessonId}`,
+        .patch(
+          `http://localhost:5550/api/v1/lessons/${editLesson.lessonId}`,
           editLesson
         )
         .then(() => {
           // load lại data
           listLessonsById.splice(editLessonIndex, 1, editLesson);
-          setShowEditLesson(false);
         })
         .catch((err) => console.log(err));
     } else {
@@ -542,7 +590,7 @@ const CoursesManagement = () => {
       }
     }
     setShowEditLesson(false);
-    toast.success("Sửa bài học thành công", {
+    toast.success("Sửa bài học thành công! 🍀", {
       position: toast.POSITION.TOP_RIGHT,
     });
   };
@@ -551,13 +599,11 @@ const CoursesManagement = () => {
   useEffect(() => {
     if (editLesson.lessonImg) {
       axios
-        .put(
-          `http://localhost:5500/api/v1/lessons/${editLesson.lessonId}`,
+        .patch(
+          `http://localhost:5550/api/v1/lessons/${editLesson.lessonId}`,
           editLesson
         )
         .then(() => {
-          loadLessons();
-
           setLessonImgPreview(null);
           setLessonImgUpload(null);
           if (fileInputRef.current) {
@@ -566,13 +612,26 @@ const CoursesManagement = () => {
 
           // load lại data
           listLessonsById.splice(editLessonIndex, 1, editLesson);
-          // setShowEditLesson(false);
+          loadLessons();
         })
         .catch((error) => {
           console.log(error);
         });
     }
   }, [editLesson.lessonImg]);
+
+  // Hàm xóa bài học
+  const handleDeleteLessons = async () => {
+    await axios.delete(
+      `http://localhost:5550/api/v1/lessons/${deleteLessonId}`
+    );
+    toast.success("Xóa bài học thành công! 🍀", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    listLessonsById.splice(deleteLessonIndex, 1);
+    setShowConfirm(false);
+    loadLessons();
+  };
 
   // Hàm lưu giá trị ảnh cho từ mới
   const handleAddNewWord = async () => {
@@ -642,13 +701,13 @@ const CoursesManagement = () => {
   useEffect(() => {
     if (newNewWord.newWordImg && newNewWord.voice) {
       axios
-        .post("http://localhost:5500/api/v1/new_words", newNewWord)
-        .then(() => {
+        .post("http://localhost:5550/api/v1/new_words", newNewWord)
+        .then((res) => {
           loadNewWords();
-
-          toast.success("Thêm từ mới thành công", {
+          toast.success(`${res.data.message}`, {
             position: toast.POSITION.TOP_RIGHT,
           });
+
           setNewWordImgPreview(null);
           setNewWordImgUpload(null);
           if (fileInputRef.current) {
@@ -670,10 +729,137 @@ const CoursesManagement = () => {
           listNewWordById.push(newNewWord);
         })
         .catch((error) => {
-          console.log(error);
+          toast.warning(`${error.response.data.message}`, {
+            position: toast.POSITION.TOP_RIGHT,
+          });
         });
     }
   }, [newNewWord]);
+
+  // Hàm lưu giá trị ảnh cho từ mới
+  const handleEditNewWord = async () => {
+    if (!editNewWord.newWordImg && !editNewWord.voice) {
+      toast.warning("Nhớ nhập đầy đủ thông tin nhé ^^", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+
+    if (!newWordImgUpload || !newWordVoiceUpload) {
+      await axios
+        .patch(
+          `http://localhost:5550/api/v1/new_words/${editNewWord.newWordId}`,
+          editNewWord
+        )
+        .then(() => {
+          // load lại data
+          listNewWordById.splice(editNewWordIndex, 1, editNewWord);
+        })
+        .catch((err) => console.log(err));
+    } else {
+      try {
+        setIsUploading(true);
+        setUploadProgress(0);
+        handleLoadNewWord(lessonById[0].lessonId);
+        // Tải lên ảnh lên Firebase Storage
+        const storageRef = ref(
+          storage,
+          `admin/courses/${courseById[0]?.courseName}/${lessonById[0]?.lessonName}/${newNewWord.title}/${dateTime}_${newWordImgUpload.name}`
+        );
+
+        // Tải lên âm thanh lên Firebase Storage
+        const storageRef2 = ref(
+          storage,
+          `admin/courses/${courseById[0]?.courseName}/${lessonById[0]?.lessonName}/${newNewWord.title}/${dateTime}_${newWordVoiceUpload.name}`
+        );
+
+        const uploadTask = uploadBytesResumable(storageRef, newWordImgUpload);
+        const uploadTask2 = uploadBytesResumable(
+          storageRef2,
+          newWordVoiceUpload
+        );
+
+        uploadTask.on("state_changed", (snapshot: any) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        });
+
+        uploadTask2.on("state_changed", (snapshot: any) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        });
+
+        await uploadTask;
+
+        await uploadTask2;
+
+        // Lấy URL của ảnh đã tải lên
+        const newWordImgUrl = await getDownloadURL(storageRef);
+        const newWordVoiceUrl = await getDownloadURL(storageRef2);
+
+        // Cập nhật trường newWordImg trong state newNewWord
+        setEditNewWord((prevNewWord: any) => ({
+          ...prevNewWord,
+          newWordImg: newWordImgUrl,
+          voice: newWordVoiceUrl,
+        }));
+
+        setIsUploading(false);
+        setUploadProgress(0);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast.error("Không thể tải dữ liệu", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    }
+    setShowEditNewWord(false);
+    toast.success("Sửa từ mới thành công! 🍀", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+  };
+
+  // Sau khi lưu giá trị ảnh và âm thanh xong thì chuyển hướng lưu vào trong database từ mới
+  useEffect(() => {
+    if (editNewWord.newWordImg && editNewWord.voice) {
+      axios
+        .patch(
+          `http://localhost:5550/api/v1/new_words/${editNewWord.newWordId}`,
+          editNewWord
+        )
+        .then(() => {
+          setNewWordImgPreview(null);
+          setNewWordImgUpload(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+          }
+
+          // load lại data
+          listNewWordById.splice(editNewWordIndex, 1, editNewWord);
+          loadNewWords();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [editNewWord.newWordImg, editNewWord.voice]);
+
+  // Hàm xóa từ mới
+  const handleDeleteNewWords = async () => {
+    await axios.delete(
+      `http://localhost:5550/api/v1/new_words/${deleteNewWordId}`
+    );
+    toast.success("Xóa từ mới thành công! 🍀", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    listNewWordById.splice(deleteNewWordIndex, 1);
+    setShowConfirm(false);
+    loadNewWords();
+  };
 
   // Hàm render ra danh sách khóa học
   const renderCourseTable = () => {
@@ -701,7 +887,7 @@ const CoursesManagement = () => {
         >
           <thead>
             <tr>
-              <th>ID</th>
+              <th>STT</th>
               <th>TÊN KHÓA HỌC</th>
               <th>NGÔN NGỮ</th>
               <th>MỤC TIÊU</th>
@@ -711,50 +897,48 @@ const CoursesManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {displayedCourses
-              .sort((a, b) => b.courseId - a.courseId)
-              .map((course, index) => (
-                <tr key={index}>
-                  <td>{course.courseId}</td>
-                  <td>{course.courseName}</td>
-                  <td>
-                    {course.courseLangue === 1 ? "Tiếng Anh" : "Tiếng Nhật"}
-                  </td>
-                  <td>{course.target}</td>
-                  <td>{course.about}</td>
-                  <td
+            {displayedCourses.map((course, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{course.courseName}</td>
+                <td>
+                  {course.courseLangue === 1 ? "Tiếng Anh" : "Tiếng Nhật"}
+                </td>
+                <td>{course.target}</td>
+                <td>{course.about}</td>
+                <td
+                  onClick={() => {
+                    setShowLesson(true);
+                    handleLoadLesson(course.courseId);
+                  }}
+                >
+                  <div className="show-detail">Xem chi tiết</div>
+                </td>
+                <td>
+                  <div
+                    className="ql-icon"
                     onClick={() => {
-                      setShowLesson(true);
-                      handleLoadLesson(course.courseId);
+                      setEditCourse(course);
+                      setShowEditPostModal(true);
                     }}
                   >
-                    <div className="show-detail">Xem chi tiết</div>
-                  </td>
-                  <td>
-                    <div
-                      className="ql-icon"
-                      onClick={() => {
-                        setEditCourse(course);
-                        setShowEditPostModal(true);
-                      }}
-                    >
-                      <img src="/img/logo/edit.png" alt="" />
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className="ql-icon"
-                      onClick={() => {
-                        setDeleteCourseId(course?.courseId);
-                        setDeleteCourseIndex(index);
-                        setShowConfirm(true);
-                      }}
-                    >
-                      <img src="/img/logo/delete.png" alt="" />
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <img src="/img/logo/edit.png" alt="" />
+                  </div>
+                </td>
+                <td>
+                  <div
+                    className="ql-icon"
+                    onClick={() => {
+                      setDeleteCourseId(course?.courseId);
+                      setDeleteCourseIndex(index);
+                      setShowConfirm(true);
+                    }}
+                  >
+                    <img src="/img/logo/delete.png" alt="" />
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </Table>
         <div className="pagination">
@@ -815,7 +999,7 @@ const CoursesManagement = () => {
       </Row>
       {/* HẾT PHẦN MAIN */}
 
-      {/* Add Post Modal */}
+      {/* Add Course Modal */}
       <Modal
         className="add-post-modal"
         size="lg"
@@ -848,6 +1032,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newCourse.courseName}
+                  placeholder="Nhập tên khóa học: (Vd: IELTS CƠ BẢN)"
                   onChange={(e) =>
                     setNewCourse({ ...newCourse, courseName: e.target.value })
                   }
@@ -880,6 +1065,7 @@ const CoursesManagement = () => {
                   as="textarea"
                   rows={3}
                   value={newCourse.target}
+                  placeholder="Nhập mục tiêu: (Vd: Ôn IELTS 6.5 Reading & Listening)"
                   onChange={(e) =>
                     setNewCourse({ ...newCourse, target: e.target.value })
                   }
@@ -893,6 +1079,7 @@ const CoursesManagement = () => {
                   as="textarea"
                   rows={3}
                   value={newCourse.about}
+                  placeholder="Nhập nội dung: (Vd: Hơn 1200 từ IELTS)"
                   onChange={(e) =>
                     setNewCourse({ ...newCourse, about: e.target.value })
                   }
@@ -911,9 +1098,9 @@ const CoursesManagement = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* Add Post Modal End*/}
+      {/* Add Course Modal End*/}
 
-      {/* Edit Post Modal */}
+      {/* Edit Course Modal */}
       <Modal
         className="add-post-modal"
         size="lg"
@@ -1009,7 +1196,7 @@ const CoursesManagement = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* Edit Post Modal End */}
+      {/* Edit Course Modal End */}
 
       {/* Show Lesson Modal */}
       <Modal
@@ -1052,7 +1239,7 @@ const CoursesManagement = () => {
           <Table className="table-container" striped bordered>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>STT</th>
                 <th>ẢNH</th>
                 <th>TÊN BÀI HỌC</th>
                 <th>TÊN TIẾNG VIỆT</th>
@@ -1065,13 +1252,14 @@ const CoursesManagement = () => {
                 .sort((a: any, b: any) => b.lessonId - a.lessonId)
                 ?.map((lesson: any, index: number) => (
                   <tr key={index}>
-                    <td>{lesson?.lessonId}</td>
+                    <td>{index + 1}</td>
                     <td>
                       <img
                         style={{
                           borderRadius: "100%",
                         }}
                         width={"45px"}
+                        height={"45px"}
                         src={`${lesson?.lessonImg}`}
                         alt=""
                       />
@@ -1099,7 +1287,14 @@ const CoursesManagement = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="ql-icon">
+                      <div
+                        className="ql-icon"
+                        onClick={() => {
+                          setDeleteLessonId(lesson?.lessonId);
+                          setDeleteLessonIndex(index);
+                          setShowConfirm(true);
+                        }}
+                      >
                         <img src="/img/logo/delete.png" alt="" />
                       </div>
                     </td>
@@ -1144,6 +1339,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newLesson.lessonName}
+                  placeholder="Nhập tên bài học: (Vd: Schools)"
                   onChange={(e) =>
                     setNewLesson({ ...newLesson, lessonName: e.target.value })
                   }
@@ -1156,6 +1352,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newLesson.lessonSubName}
+                  placeholder="Nhập tên Tiếng Việt: (Vd: Trường học)"
                   onChange={(e) =>
                     setNewLesson({
                       ...newLesson,
@@ -1316,7 +1513,7 @@ const CoursesManagement = () => {
       {/* Show New Word Modal */}
       <Modal
         className="add-post-modal"
-        size="lg"
+        size="xl"
         backdrop="static"
         show={showNewWord}
         onHide={() => setShowNewWord(false)}
@@ -1354,7 +1551,7 @@ const CoursesManagement = () => {
           <Table className="table-container" striped bordered>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>STT</th>
                 <th>ẢNH</th>
                 <th>TỪ MỚI</th>
                 <th>ĐOẠN MỘT</th>
@@ -1370,13 +1567,14 @@ const CoursesManagement = () => {
                 .sort((a: any, b: any) => b.newWordId - a.newWordId)
                 ?.map((newWord: any, index: number) => (
                   <tr key={index}>
-                    <td>{newWord?.newWordId}</td>
+                    <td>{index + 1}</td>
                     <td>
                       <img
                         style={{
                           borderRadius: "100%",
                         }}
                         width={"45px"}
+                        height={"45px"}
                         src={`${newWord?.newWordImg}`}
                         alt=""
                       />
@@ -1409,7 +1607,14 @@ const CoursesManagement = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="ql-icon">
+                      <div
+                        onClick={() => {
+                          setDeleteNewWordId(newWord?.newWordId);
+                          setDeleteNewWordIndex(index);
+                          setShowConfirm(true);
+                        }}
+                        className="ql-icon"
+                      >
                         <img src="/img/logo/delete.png" alt="" />
                       </div>
                     </td>
@@ -1454,6 +1659,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newNewWord.title}
+                  placeholder="Nhập từ mới: (Vd: student)"
                   onChange={(e) =>
                     setNewNewWord({ ...newNewWord, title: e.target.value })
                   }
@@ -1466,6 +1672,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newNewWord.contentOne}
+                  placeholder="Nhập đoạn một: (Vd: His younger sister is a)"
                   onChange={(e) =>
                     setNewNewWord({
                       ...newNewWord,
@@ -1481,6 +1688,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newNewWord.contentTwo}
+                  placeholder="Nhập đoạn hai: (Vd: at that university.)"
                   onChange={(e) =>
                     setNewNewWord({
                       ...newNewWord,
@@ -1496,6 +1704,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="text"
                   value={newNewWord.pronound}
+                  placeholder="Nhập phát âm của từ: (Vd: /ˈstuːdnt/.)"
                   onChange={(e) =>
                     setNewNewWord({
                       ...newNewWord,
@@ -1507,10 +1716,11 @@ const CoursesManagement = () => {
             </div>
             <div>
               <Form.Group>
-                <label>Dịch</label>
+                <label>Nghĩa Tiếng Việt</label>
                 <Form.Control
                   type="text"
                   value={newNewWord.translate}
+                  placeholder="Nhập nghĩa Tiếng Việt: (Vd: Học sinh, sinh viên (n).)"
                   onChange={(e) =>
                     setNewNewWord({
                       ...newNewWord,
@@ -1522,7 +1732,7 @@ const CoursesManagement = () => {
             </div>
             <div>
               <Form.Group controlId="formFileMultiple" className="mb-3">
-                <Form.Label>Up Ảnh</Form.Label>
+                <Form.Label>Up Ảnh Minh Hoạ</Form.Label>
                 <Form.Control
                   type="file"
                   accept="image/*"
@@ -1650,7 +1860,7 @@ const CoursesManagement = () => {
                   type="text"
                   value={editNewWord.contentOne}
                   onChange={(e) =>
-                    setNewNewWord({
+                    setEditNewWord({
                       ...editNewWord,
                       contentOne: e.target.value,
                     })
@@ -1665,7 +1875,7 @@ const CoursesManagement = () => {
                   type="text"
                   value={editNewWord.contentTwo}
                   onChange={(e) =>
-                    setNewNewWord({
+                    setEditNewWord({
                       ...editNewWord,
                       contentTwo: e.target.value,
                     })
@@ -1680,7 +1890,7 @@ const CoursesManagement = () => {
                   type="text"
                   value={editNewWord.pronound}
                   onChange={(e) =>
-                    setNewNewWord({
+                    setEditNewWord({
                       ...editNewWord,
                       pronound: e.target.value,
                     })
@@ -1695,7 +1905,7 @@ const CoursesManagement = () => {
                   type="text"
                   value={editNewWord.translate}
                   onChange={(e) =>
-                    setNewNewWord({
+                    setEditNewWord({
                       ...editNewWord,
                       translate: e.target.value,
                     })
@@ -1709,7 +1919,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="file"
                   accept="image/*"
-                  onChange={handleNewWordImageChange}
+                  onChange={handleNewWordEditImageChange}
                   disabled={isUploading} // Disable input during upload
                   className="input-file"
                   multiple
@@ -1742,7 +1952,7 @@ const CoursesManagement = () => {
                 <Form.Control
                   type="file"
                   accept="audio/*"
-                  onChange={handleNewWordVoiceChange}
+                  onChange={handleNewWordEditVoiceChange}
                   disabled={isUploading} // Disable input during upload
                   className="input-file"
                   multiple
@@ -1795,7 +2005,7 @@ const CoursesManagement = () => {
           <Button
             style={{ fontWeight: "bolder" }}
             variant="warning"
-            onClick={handleEditLesson}
+            onClick={handleEditNewWord}
             disabled={isUploading} // Disable button during upload
           >
             {isUploading ? "Đang tải lên..." : "Sửa từ mới"}
@@ -1832,7 +2042,13 @@ const CoursesManagement = () => {
               <img
                 title="Có"
                 style={{ margin: "5px" }}
-                onClick={handleDeleteCourses}
+                onClick={
+                  deleteCourseId !== 0
+                    ? handleDeleteCourses
+                    : deleteLessonId !== 0
+                    ? handleDeleteLessons
+                    : handleDeleteNewWords
+                }
                 src="/img/logo/ok.png"
                 alt=""
               />
@@ -1842,7 +2058,7 @@ const CoursesManagement = () => {
       </Modal>
       {/* CONFIRM MODAL END*/}
 
-      <ToastContainer autoClose={2000} />
+      <ToastContainer autoClose={1500} style={{ textAlign: "center" }} />
     </Container>
   );
 };

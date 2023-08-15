@@ -30,4 +30,6 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   photoURL: string;
+
+  
 }

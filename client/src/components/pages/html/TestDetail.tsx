@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../css/TestDetail.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function TestDetail() {
   let testTableType = window.location.href.split("/")[4];
-
-  let testId = window.location.href.split("/")[5];
+  let testTableId = window.location.href.split("/")[5];
+  let testId = window.location.href.split("/")[6];
   console.log(testId);
   let [showResult, setShowResult] = useState<boolean>(false);
   let navigate = useNavigate();
   let clickAudio = new Audio("/audio/Click.mp3");
+  let completeAudio = new Audio("/audio/complete.mp3");
 
   let [listCurrentAnswer, setListCurrentAnswer] = useState<any>({
     a1: "",
@@ -23,6 +24,16 @@ function TestDetail() {
     a8: "",
     a9: "",
     a10: "",
+    a11: "",
+    a12: "",
+    a13: "",
+    a14: "",
+    a15: "",
+    a16: "",
+    a17: "",
+    a18: "",
+    a19: "",
+    a20: "",
   });
 
   let [listRightAnswer, setListRightAnswer] = useState<any>({
@@ -36,13 +47,25 @@ function TestDetail() {
     a8: "",
     a9: "",
     a10: "",
+    a11: "",
+    a12: "",
+    a13: "",
+    a14: "",
+    a15: "",
+    a16: "",
+    a17: "",
+    a18: "",
+    a19: "",
+    a20: "",
   });
 
   let [matchAnswerQuantity, setMatchAnswerQuantity] = useState<number>(0);
 
   let questionNumbers: Array<number> = [];
 
+  // Hàm chọn câu trả lời
   const handleChangeAnswer = (answer: any, index: number) => {
+    clickAudio.play();
     let keys = Object.keys(listCurrentAnswer);
     let updatedListCurrentAnswer: any = { ...listCurrentAnswer };
     updatedListCurrentAnswer[keys[index]] = answer;
@@ -60,24 +83,32 @@ function TestDetail() {
   const [listTestById, setListTestById] = useState<any>([]);
   const [ListTestByTestTableId, setListTestByTestTableId] = useState<any>([]);
 
+  // Hàm load data test
   const loadListTests = async () => {
-    let result = await axios.get(
-      `http://localhost:5500/api/v1/tests/my_test/all`
-    );
-    let ListTestByTestTableId = result.data.data[0].filter(
-      (e: any) => e.testTableId === +testTableType
-    );
-    let listTestById = result.data.data[0].filter(
-      (e: any) => e.testId === +testId.charAt(0)
-    );
+    await axios
+      .get(`http://localhost:5550/api/v1/tests`)
+      .then((res) => {
+        console.log("res====>", res.data);
 
-    setListTestById(listTestById[0]);
-    setListTestByTestTableId(ListTestByTestTableId);
+        let ListTestByTestTableId = res.data.filter(
+          (e: any) => e.testTableId === +testTableId
+        );
+        let listTestById = res.data.filter((e: any) => e.testId === +testId);
+
+        console.log(listTestById);
+
+        setListTestById(listTestById[0]);
+        setListTestByTestTableId(ListTestByTestTableId);
+      })
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
     loadListTests();
   }, []);
+
+  console.log("listTestById ====>", listTestById);
+  console.log("ListTestByTestTableId ====>", ListTestByTestTableId);
 
   const [listExs, setListExs] = useState<any>([]);
 
@@ -85,24 +116,32 @@ function TestDetail() {
     console.log("testId line 88 ====>", testId);
     try {
       let result = await axios.get(
-        `http://localhost:5500/api/v1/tests/my_test/text_exs/${testId}`
+        `http://localhost:5550/api/v1/test_exs/${testId}`
       );
-      console.log(result, "<---- line 85");
 
-      setListExs(result.data.data[0]);
+      setListExs(result.data);
       setListRightAnswer({
-        a1: result.data.data[0][0]?.rightAnswer,
-        a2: result.data.data[0][1]?.rightAnswer,
-        a3: result.data.data[0][2]?.rightAnswer,
-        a4: result.data.data[0][3]?.rightAnswer,
-        a5: result.data.data[0][4]?.rightAnswer,
-        a6: result.data.data[0][5]?.rightAnswer,
-        a7: result.data.data[0][6]?.rightAnswer,
-        a8: result.data.data[0][7]?.rightAnswer,
-        a9: result.data.data[0][8]?.rightAnswer,
-        a10: result.data.data[0][9]?.rightAnswer,
+        a1: result.data[0]?.rightAnswer,
+        a2: result.data[1]?.rightAnswer,
+        a3: result.data[2]?.rightAnswer,
+        a4: result.data[3]?.rightAnswer,
+        a5: result.data[4]?.rightAnswer,
+        a6: result.data[5]?.rightAnswer,
+        a7: result.data[6]?.rightAnswer,
+        a8: result.data[7]?.rightAnswer,
+        a9: result.data[8]?.rightAnswer,
+        a10: result.data[9]?.rightAnswer,
+        a11: result.data[10]?.rightAnswer,
+        a12: result.data[11]?.rightAnswer,
+        a13: result.data[12]?.rightAnswer,
+        a14: result.data[13]?.rightAnswer,
+        a15: result.data[14]?.rightAnswer,
+        a16: result.data[15]?.rightAnswer,
+        a17: result.data[16]?.rightAnswer,
+        a18: result.data[17]?.rightAnswer,
+        a19: result.data[18]?.rightAnswer,
+        a20: result.data[19]?.rightAnswer,
       });
-      console.log("result ====>", result);
     } catch (error) {
       console.log(error, "<---- line 101 ");
     }
@@ -117,7 +156,7 @@ function TestDetail() {
   }
 
   const handleResult = () => {
-    clickAudio.play();
+    completeAudio.play();
     window.scrollTo({ top: 0, behavior: "smooth" });
     setShowResult(true);
     console.log("listCurrentAnswer ===>", listCurrentAnswer);
@@ -138,13 +177,22 @@ function TestDetail() {
             <div className="test-detail-header">{listTestById?.testName}</div>
             <div
               style={{
+                color: "black",
+                fontSize: "18.5px",
+                margin: "15px 0",
+              }}
+            >
+              {listTestById?.testEssay}
+            </div>
+            <div
+              style={{
                 color: "gray",
                 fontSize: "18.5px",
                 fontWeight: "700",
                 margin: "15px 0",
               }}
             >
-              Choose the correct answer:
+              Chọn câu trả lời đúng:
             </div>
           </>
         ) : (
@@ -161,7 +209,7 @@ function TestDetail() {
                 {matchAnswerQuantity}/{listExs?.length}
               </div>
             </div>
-            <a className="right-answer-detail" href="#0">
+            <a className="right-answer-detail" href="#result-detail">
               Xem kết quả chi tiết
             </a>
             <hr />
@@ -195,7 +243,9 @@ function TestDetail() {
               </div>
             )}
             <hr />
-            <div className="test-detail-header">Kết quả chi tiết</div>
+            <div className="test-detail-header" id="result-detail">
+              Kết quả chi tiết
+            </div>
           </>
         )}
 
@@ -206,67 +256,180 @@ function TestDetail() {
               <div className="test-block-number">{index + 1}</div>
               <div>{ex.question}</div>
             </div>
-            <div className="test-block-answers">
-              <div
-                onClick={
-                  showResult === false
-                    ? () => handleChangeAnswer(`${ex.answerOne}`, index)
-                    : () => {}
-                }
-                className={
-                  showResult === false
-                    ? Object.keys(listCurrentAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      listCurrentAnswer["a" + (index + 1)] === `${ex.answerOne}`
-                      ? "test-answer-active"
-                      : "test-answer"
-                    : Object.keys(listRightAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      `${ex.answerOne}` === listRightAnswer["a" + (index + 1)]
-                    ? "test-answer-right"
-                    : "test-answer-wrong"
-                }
-              >
-                {ex.answerOne}
-              </div>
-              <div
-                onClick={() => handleChangeAnswer(`${ex.answerTwo}`, index)}
-                className={
-                  showResult === false
-                    ? Object.keys(listCurrentAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      listCurrentAnswer["a" + (index + 1)] === `${ex.answerTwo}`
-                      ? "test-answer-active"
-                      : "test-answer"
-                    : Object.keys(listRightAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      `${ex.answerTwo}` === listRightAnswer["a" + (index + 1)]
-                    ? "test-answer-right"
-                    : "test-answer-wrong"
-                }
-              >
-                {ex.answerTwo}
-              </div>
-              <div
-                onClick={() => handleChangeAnswer(`${ex.answerThree}`, index)}
-                className={
-                  showResult === false
-                    ? Object.keys(listCurrentAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      listCurrentAnswer["a" + (index + 1)] ===
-                        `${ex.answerThree}`
-                      ? "test-answer-active"
-                      : "test-answer"
-                    : Object.keys(listRightAnswer)[index] ===
-                        "a" + (index + 1) &&
-                      `${ex.answerThree}` === listRightAnswer["a" + (index + 1)]
-                    ? "test-answer-right"
-                    : "test-answer-wrong"
-                }
-              >
-                {ex.answerThree}
-              </div>
-            </div>
+
+            {ex.answerFour === null || ex.answerFour === "" ? (
+              <>
+                <div className="test-block-answers">
+                  <div
+                    onClick={
+                      showResult === false
+                        ? () => handleChangeAnswer(`${ex.answerOne}`, index)
+                        : () => {}
+                    }
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerOne}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerOne}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerOne}
+                  </div>
+                  <div
+                    onClick={() => handleChangeAnswer(`${ex.answerTwo}`, index)}
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerTwo}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerTwo}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerTwo}
+                  </div>
+                  <div
+                    onClick={() =>
+                      handleChangeAnswer(`${ex.answerThree}`, index)
+                    }
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerThree}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerThree}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerThree}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="test-block-answers-four">
+                  <div
+                    onClick={
+                      showResult === false
+                        ? () => handleChangeAnswer(`${ex.answerOne}`, index)
+                        : () => {}
+                    }
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerOne}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerOne}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerOne}
+                  </div>
+                  <div
+                    onClick={() => {
+                      showResult === false
+                        ? handleChangeAnswer(`${ex.answerTwo}`, index)
+                        : "";
+                    }}
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerTwo}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerTwo}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerTwo}
+                  </div>
+                  <div
+                    onClick={() => {
+                      showResult === false
+                        ? handleChangeAnswer(`${ex.answerThree}`, index)
+                        : "";
+                    }}
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerThree}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerThree}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerThree}
+                  </div>
+                  <div
+                    onClick={() => {
+                      showResult === false
+                        ? handleChangeAnswer(`${ex.answerFour}`, index)
+                        : "";
+                    }}
+                    className={
+                      showResult === false
+                        ? Object.keys(listCurrentAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          listCurrentAnswer["a" + (index + 1)] ===
+                            `${ex.answerFour}`
+                          ? "test-answer-active"
+                          : "test-answer"
+                        : Object.keys(listRightAnswer)[index] ===
+                            "a" + (index + 1) &&
+                          `${ex.answerFour}` ===
+                            listRightAnswer["a" + (index + 1)]
+                        ? "test-answer-right"
+                        : "test-answer-wrong"
+                    }
+                  >
+                    {ex.answerFour}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         ))}
 
@@ -290,7 +453,7 @@ function TestDetail() {
           <div className="list-questions-numbers">
             {questionNumbers.map((number, i) => (
               <a
-                href={number === 1 ? `#` : `#${i}`}
+                href={number === 1 ? `#result-detail` : `#${i}`}
                 className={
                   showResult === false
                     ? Object.keys(listCurrentAnswer)[i] === "a" + (i + 1) &&

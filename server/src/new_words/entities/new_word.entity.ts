@@ -8,15 +8,12 @@ export class NewWord {
   newWordId: number;
 
   @Column()
-  lessonId: number;
-
-  @Column()
   title: string;
 
   @Column()
   contentOne: string;
 
-  @Column()
+  @Column({ nullable: true })
   contentTwo: string;
 
   @Column()
@@ -25,17 +22,18 @@ export class NewWord {
   @Column()
   translate: string;
 
-  @Column()
+  @Column('longtext')
   newWordImg: string;
 
-  @Column()
+  @Column('longtext')
   voice: string;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.new_words, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'lessonId' })
-  lesson: Lesson[];
+  @Column()
+  lessonId: number;
 
   constructor(CreateNewWordDto: Object = {}) {
     Object.assign(this, CreateNewWordDto);

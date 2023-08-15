@@ -22,9 +22,14 @@ export class NewWordsController {
     return this.newWordsService.create(createNewWordDto, res);
   }
 
+  @Get()
+  findAll() {
+    return this.newWordsService.findAll();
+  }
+
   @Get(':lessonId')
-  findAll(@Param('lessonId') lessonId: string) {
-    return this.newWordsService.findAll(+lessonId);
+  findAllNewWordById(@Param('lessonId') lessonId: string) {
+    return this.newWordsService.findAllNewWordById(+lessonId);
   }
 
   @Get('/new_word/:newWordId')
@@ -32,13 +37,16 @@ export class NewWordsController {
     return this.newWordsService.findOne(+newWordId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNewWordDto: UpdateNewWordDto) {
-    return this.newWordsService.update(+id, updateNewWordDto);
+  @Patch(':newWordId')
+  update(
+    @Param('newWordId') newWordId: string,
+    @Body() updateNewWordDto: UpdateNewWordDto,
+  ) {
+    return this.newWordsService.update(+newWordId, updateNewWordDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.newWordsService.remove(+id);
+  @Delete(':newWordId')
+  remove(@Param('newWordId') newWordId: string) {
+    return this.newWordsService.remove(+newWordId);
   }
 }
